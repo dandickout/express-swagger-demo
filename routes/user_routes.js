@@ -1,7 +1,12 @@
+/**
+ * @file user_routes.js
+ * @description Defines the user routes for the Express application.
+ */
+
 const express = require('express');
 const router = express.Router();
 const { body, query, validationResult } = require('express-validator');
-const controller = require('./controller');
+const user_controller = require('../controllers/users_controller');
 
 /**
  * Middleware function to validate the request body.
@@ -11,9 +16,10 @@ const controller = require('./controller');
  * @returns {void}
  */
 const validateRequestBody = async (req, res, next) => {
+    // Validation rules for the request body
     const validationRules = [
-        body('field1').exists().withMessage('field1 is required'),
-        body('field2').exists().withMessage('field2 is required')
+        body('name').exists().withMessage('name is required'),
+        body('email').exists().withMessage('email is required')
     ];
     
     // Run the validation rules on the request body
@@ -41,8 +47,9 @@ const validateRequestBody = async (req, res, next) => {
  * @returns {void}
  */
 const validateRequestParams = async (req, res, next) => {
+    // Validation rules for the request parameters
     const validationRules = [
-        query('cust_id').exists().withMessage('cust_id is required')
+        query('user_id').exists().withMessage('user_id is required')
     ];
     
     // Run the validation rules on the request parameters
@@ -64,24 +71,73 @@ const validateRequestParams = async (req, res, next) => {
 
 /**
  * @swagger
- * /:
+ * /users:
  *   get:
- *     description: Get all users
+ *     description: Get a user
+ *     parameters:
+ *       - name: user_id
+ *         in: query
+ *         required: true
+ *         description: ID of the user to get
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Success
+ */
+router.get('/', validateRequestParams, user_controller.getHandler);
+
+/**
+ * @swagger
+ * /users:
  *   post:
  *     description: Create a new user
+ *     parameters:
+ *       - name: user_data
+ *         in: body
+ *         required: true
+ *         description: The name and email address of the user to create
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
  *     responses:
- *       200:
- *         description: Success
+ *       201:
+ *         description: Created
+ */
+router.post('/', validateRequestBody, user_controller.postHandler);
+
+/**
+ * @swagger
+ * /users:
  *   put:
- *     description: Update an existing user
+ *     description: Update a user
+ *     parameters:
+ *       - name: user
+ *         in: body
+ *         required: true
+ *         description: The user to update
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
  *     responses:
  *       200:
  *         description: Success
+ */
+router.put('/', validateRequestBody, user_controller.putHandler);
+
+/**
+ * @swagger
+ * /users/{id}:
  *   delete:
- *     description: Delete a user by ID
+ *     description: Delete a user
  *     parameters:
  *       - name: id
  *         in: path
@@ -89,18 +145,17 @@ const validateRequestParams = async (req, res, next) => {
  *         description: ID of the user to delete
  *         schema:
  *           type: string
+ *       - name: user_id
+ *         in: query
+ *         required: true
+ *         description: ID of the user who is performing the delete
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Success
  */
-
-router.get('/', validateRequestParams, controller.getHandler);
-
-router.post('/', validateRequestBody, controller.postHandler);
-
-router.put('/', validateRequestBody, controller.putHandler);
-
-router.delete('/:id', validateRequestParams, controller.delHandler);
+router.delete('/:id', validateRequestParams, user_controller.delHandler);
 
 module.exports = router;
 
