@@ -10,7 +10,11 @@ const swaggerUi = require('swagger-ui-express');
 let _db;
 
 const uri = process.env.MONGODB_URI; // Get the connection string from the .env file
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri, {serverSelectionTimeoutMS: 5000 });
+//log the uri to make sure it's correct, include text to make it easier to find in the logs
+console.log('uri: ' + uri);
+// log the client to make sure it's correct
+console.log('client: ' + client);
 
 
 // Extended: https://swagger.io/specification/#infoObject
@@ -44,16 +48,20 @@ const org_routes = require('./routes/org_routes');
 app.use('/orgs', org_routes);
 
 console.log('Connecting to MongoDB Atlas...');
-client.connect((err) => {
-  if (err) {
-      console.error('Error connecting to MongoDB Atlas:', err);
-      process.exit(1);
-  }
-  console.log('Connected to MongoDB Atlas');
-  _db = client.db();
-  app.locals.db = _db; // Pass the connection to the express app
+const connectToMongoDB = async () => {
+  try {
+      await client.connect();
+      console.log('Successfully connected to MongoDB');
+      _db = client.db('<database>');
+      app.locals.db = _db;
 
-  app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
-  });
-});
+      // Start the server here
+      app.listen(port, () => {
+          console.log(`Server is running on port ${port}`);
+      });
+  } catch (err) {
+      console.error('Failed to connect to MongoDB:', err);
+  }
+};
+
+connectToMongoDB();

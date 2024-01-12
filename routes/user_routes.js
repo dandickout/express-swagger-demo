@@ -69,6 +69,11 @@ const validateRequestParams = async (req, res, next) => {
     next();
 };
 
+router.use((req, res, next) => {
+    console.log(`A ${req.method} request was made to ${req.originalUrl}`);
+    next();
+});
+
 /**
  * @swagger
  * /users:
