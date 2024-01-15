@@ -1,17 +1,25 @@
 const { MongoClient } = require('mongodb');
+const { ObjectId } = require('mongodb');
 
 // --------------------------------------------
 // GET Handler
 exports.getHandler = async (req, res) => {
+    const { user_id } = req.query;
+    console.log(user_id);
+    const _id = new ObjectId(user_id);
     const collection = req.app.locals.db.collection('users');
     try {
-        const users = await collection.find().toArray();
+        const user = await collection.findOne({ _id: _id });
         //log the result to make sure it's correct
-        console.log(users);
-        res.json(users);
+        console.log(user);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+        } else {
+            res.json(user);
+        }
     } catch (err) {
-        console.error('Error retrieving users:', err);
-        res.status(500).send('Error retrieving users');
+        console.error('Error retrieving user:', err);
+        res.status(500).json({ error: 'Error retrieving user' });
     }
 };
 

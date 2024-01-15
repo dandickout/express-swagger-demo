@@ -12,9 +12,9 @@ let _db;
 const uri = process.env.MONGODB_URI; // Get the connection string from the .env file
 const client = new MongoClient(uri, {serverSelectionTimeoutMS: 5000 });
 //log the uri to make sure it's correct, include text to make it easier to find in the logs
-console.log('uri: ' + uri);
+//console.log('uri: ' + uri);
 // log the client to make sure it's correct
-console.log('client: ' + client);
+//console.log(client);
 
 
 // Extended: https://swagger.io/specification/#infoObject
@@ -30,7 +30,7 @@ const swaggerOptions = {
     }
   },
   // ['.routes/*.js']
-    apis: ["server.js", "routes/user_routes.js", "routes/org_routes.js"]
+    apis: ["server.js", "./routes/*.js"]
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -50,17 +50,17 @@ app.use('/orgs', org_routes);
 console.log('Connecting to MongoDB Atlas...');
 const connectToMongoDB = async () => {
   try {
-      await client.connect();
-      console.log('Successfully connected to MongoDB');
-      _db = client.db('<database>');
-      app.locals.db = _db;
+    await client.connect();
+    console.log('Successfully connected to MongoDB');
+    _db = client.db(process.env.ENVIRONMENT); // Replace 'staging' with environment tag
+    app.locals.db = _db;
 
-      // Start the server here
-      app.listen(port, () => {
-          console.log(`Server is running on port ${port}`);
-      });
+    // Start the server here
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
   } catch (err) {
-      console.error('Failed to connect to MongoDB:', err);
+    console.error('Failed to connect to MongoDB:', err);
   }
 };
 

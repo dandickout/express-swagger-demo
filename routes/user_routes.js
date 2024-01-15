@@ -78,7 +78,7 @@ router.use((req, res, next) => {
  * @swagger
  * /users:
  *   get:
- *     description: Get a user
+ *     description: Get a user by their Mongo _id
  *     parameters:
  *       - name: user_id
  *         in: query
@@ -89,6 +89,10 @@ router.use((req, res, next) => {
  *     responses:
  *       200:
  *         description: Success
+ *      404:
+ *        description: User not found
+ *     500:
+ *        description: Error retrieving user
  */
 router.get('/', validateRequestParams, user_controller.getHandler);
 
@@ -111,7 +115,9 @@ router.get('/', validateRequestParams, user_controller.getHandler);
  *               type: string
  *     responses:
  *       201:
- *         description: Created
+ *         description: User created successfully
+ *      500:
+ *         description: Error creating user
  */
 router.post('/', validateRequestBody, user_controller.postHandler);
 
@@ -121,8 +127,8 @@ router.post('/', validateRequestBody, user_controller.postHandler);
  *   put:
  *     description: Update a user
  *     parameters:
- *       - name: user
- *         in: body
+ *       - name: user_id
+ *         in: query
  *         required: true
  *         description: The user to update
  *         schema:
